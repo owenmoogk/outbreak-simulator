@@ -17,12 +17,13 @@ initInfectionChance = 0 # init infection change, if 0 there will be exactly one 
 infectionChance = 0.4
 postInfectionImmunityChance = 0.4
 recoveryTime = 300 # in ticks
+deathChance = 0.05
 drawLines = True
 
 # COLORS
 white = (255,255,255)
 grey = (150,150,150)
-blue = (0,0,255)
+blue = (51,153,255)
 red = (255,0,0)
 pink = (254,127,156)
 green = (0,255,0)
@@ -39,12 +40,16 @@ class Node:
         self.infected = random.random() < initInfectionChance
         self.immune = False
         self.color = grey
+        self.dead = False
         if self.infected:
             self.infectionTick = 0
         else:
             self.infectionTick = None
 
     def move(self):
+        if self.dead:
+            return
+
         self.y += self.yVel
         self.x += self.xVel
 
@@ -55,34 +60,41 @@ class Node:
             self.xVel = -self.xVel
 
     def draw(self):
-        if self.infected:
-            self.color = red
-        elif self.immune:
-            self.color = green
-        else:
-            self.color = grey
         pygame.draw.circle(screen, self.color, (self.x, self.y), circleRadius)
 
     def checkImmunity(self):
+        global nodes, deadNodes
         if self.infectionTick < tick - recoveryTime:
-            global infected, susceptible, immune
+            global infected, susceptible, immune, dead
             self.infected = False
             self.immune = random.random() < postInfectionImmunityChance
+            self.dead = random.random() < deathChance
             infected -= 1
-            if self.immune:
-                self.color = green
-                immune += 1
+            if self.dead:
+                self.color = blue
+                dead += 1
+                deadNodes.append(self)
+                nodes.remove(self)
             else:
-                susceptible += 1
-                
+                if self.immune:
+                    self.color = green
+                    immune += 1
+                else:
+                    self.color = grey
+                    susceptible += 1
 
 
 def drawBackground():
     screen.fill(backgroundColor)
 
-def drawWindow(node, infected, immune, susceptible):
+def drawWindow(nodes, deadNodes):
+    global immune, susceptible, infected, dead
+
     for node in nodes:
         node.draw()
+
+    for deadNode in deadNodes:
+        deadNode.draw()
 
     # labels
     score_label = myFont.render("Susceptible: " + str(susceptible),1,white)
@@ -91,6 +103,8 @@ def drawWindow(node, infected, immune, susceptible):
     screen.blit(score_label, (10, 50))
     score_label = myFont.render("Immune: " + str(immune),1,white)
     screen.blit(score_label, (10, 90))
+    score_label = myFont.render("Dead: " + str(dead),1,white)
+    screen.blit(score_label, (10, 130))
     
 def getDistance(node1, node2):
     global infected, susceptible
@@ -106,12 +120,14 @@ def getDistance(node1, node2):
                 node2.infected = random.random() < infectionChance
                 if node2.infected:
                     node2.infectionTick = tick
+                    node2.color = red
                     infected += 1
                     susceptible -= 1
             elif node2.infected and not node1.infected and not node1.immune:
                 node1.infected = random.random() < infectionChance
                 if node1.infected:
                     node1.infectionTick = tick
+                    node1.color = red
                     infected += 1
                     susceptible -= 1
 
@@ -131,8 +147,10 @@ def drawLine(node1, node2):
 immune = 0
 susceptible = numOfNodes
 infected = 0
+dead = 0
 
 nodes = []
+deadNodes = []
 for i in range(numOfNodes):
     nodes.append(Node())
 
@@ -171,6 +189,6 @@ while True:
             node.checkImmunity()
         node.move()
 
-    drawWindow(nodes, infected, immune, susceptible)
+    drawWindow(nodes, deadNodes)
 
     pygame.display.update()
