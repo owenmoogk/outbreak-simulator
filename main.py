@@ -11,13 +11,13 @@ pygame.display.set_caption("Outbreak Simulation")
 # SETTINGS
 simSpeed = 60 # 60 ticks / frames per second
 maxNodeSpeed = 2
-numOfNodes = 100
+numOfNodes = 200
 circleRadius = 7
 infectionDistance = 50
 initInfectionChance = 0 # init infection change, if 0 there will be exactly one node that is infected
-infectionChance = 0.4
-postInfectionImmunityChance = 0.4
-recoveryTime = 300 # in ticks
+infectionChance = 0.1
+postInfectionImmunityChance = 0.3
+recoveryTime = 600 # in ticks
 deathChance = 0.05
 drawLines = True
 dataLogTicks = 20 # log the data every 100 ticks
