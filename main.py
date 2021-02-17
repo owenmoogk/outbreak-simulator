@@ -20,6 +20,7 @@ postInfectionImmunityChance = 0.3
 recoveryTime = 600 # in ticks
 deathChance = 0.05
 drawLines = True
+transmissionLinesOnly = True # limits lines to only connect between infected dots, only matters if drawlines is true
 dataLogTicks = 20 # log the data every 100 ticks
 
 # COLORS
@@ -116,7 +117,12 @@ def getDistance(node1, node2):
     if distance < infectionDistance:
         if node2 in node1.connections:
             if drawLines:
-                drawLine(node1, node2)
+                if transmissionLinesOnly:
+                    if node1.infected or node2.infected:
+                        drawLine(node1, node2)
+                else:
+                    drawLine(node1, node2)
+
         else:
             if node1.infected and not node2.infected and not node2.immune:
                 node2.infected = random.random() < infectionChance
