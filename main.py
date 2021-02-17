@@ -10,7 +10,7 @@ pygame.display.set_caption("Outbreak Simulation")
 # SETTINGS
 simSpeed = 60 # 60 ticks / frames per second
 maxNodeSpeed = 2
-numOfNodes = 200
+numOfNodes = 100
 circleRadius = 7
 infectionDistance = 50
 initInfectionChance = 0 # init infection change, if 0 there will be exactly one node that is infected
@@ -19,6 +19,7 @@ postInfectionImmunityChance = 0.4
 recoveryTime = 300 # in ticks
 deathChance = 0.05
 drawLines = True
+dataLogTicks = 20 # log the data every 100 ticks
 
 # COLORS
 white = (255,255,255)
@@ -141,9 +142,20 @@ def getDistance(node1, node2):
 def drawLine(node1, node2):
     pygame.draw.line(screen, pink, (node1.x, node1.y), (node2.x, node2.y), 2)
 
+def logData():
+    global data
+    data["immune"].append(immune)
+    data["susceptible"].append(susceptible)
+    data["infected"].append(infected)
+    data["dead"].append(dead)
 
 # main
-
+data = {
+    "susceptible": [],
+    "immune": [],
+    "infected": [],
+    "dead": [],
+}
 immune = 0
 susceptible = numOfNodes
 infected = 0
@@ -161,6 +173,7 @@ for index, node in enumerate(nodes):
     if index + 1 == len(nodes):
         node.infected = True
         node.infectionTick = 0
+        node.color = red
 
 # checking how many are initially contagious
 for node in nodes:
@@ -191,4 +204,23 @@ while True:
 
     drawWindow(nodes, deadNodes)
 
+    # data export stuff
+    if tick % dataLogTicks == 0:
+        logData()
+
+    if infected == 0:
+        break
+
     pygame.display.update()
+
+logData()
+
+import csv
+def createCSV(data):
+    with open("data.csv", "w", newline="") as csvfile:
+        filewriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        filewriter.writerow(["tick", "susceptible", "immune", "infected", "dead"])
+        for i in range(0, len(data["immune"])):
+            filewriter.writerow([i*dataLogTicks, data["susceptible"][i], data["immune"][i], data["infected"][i], data["dead"][i]])
+
+createCSV(data)
