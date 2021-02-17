@@ -1,5 +1,6 @@
 # INIT
 import pygame, random, time, math
+import graphing
 pygame.font.init()  # init font
 windowWidth = 1200
 windowHeight = 675
@@ -224,3 +225,4 @@ def createCSV(data):
             filewriter.writerow([i*dataLogTicks, data["susceptible"][i], data["immune"][i], data["infected"][i], data["dead"][i]])
 
 createCSV(data)
+graphing.graph(data)
