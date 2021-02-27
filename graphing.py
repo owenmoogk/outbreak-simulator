@@ -10,11 +10,8 @@ def graph(data):
     immune = numpy.array(data["immune"])
 
     myArray = numpy.row_stack((susceptible, infected, immune, dead))
-    print(myArray)
-
     x = numpy.arange(len(dead))
     y_stack = numpy.cumsum(myArray, axis=0)
-    print(y_stack)
 
     fig = PLT.figure()
     ax1 = fig.add_subplot(111)
