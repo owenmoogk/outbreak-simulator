@@ -1,8 +1,6 @@
 import numpy
 from matplotlib import pyplot as PLT
 
-myList = [9,9,49,49,249]
-
 def graph(data):
     dead = numpy.array(data["dead"])
     susceptible = numpy.array(data["susceptible"])
